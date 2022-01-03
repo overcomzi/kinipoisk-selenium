@@ -16,6 +16,19 @@
         <selenium.version>4.0.0</selenium.version>
         <testng.version>7.0.0</testng.version>
         <webdrivermanager.version>3.8.1</webdrivermanager.version>
+        <allure-maven.version>2.10.0</allure-maven.version>
+
+        <!-- Интеграция allure с testng -->
+        <allure-testng.version>2.14.0</allure-testng.version>
+        <aspectj.version>1.9.6</aspectj.version>
+        <maven-surefire-plugin.version>3.0.0-M5</maven-surefire-plugin.version>
+
+        <!-- Директория, куда будут создаваться отчёты от allure -->
+        <allure.output-directory>${project.build.directory}/site/allure-maven</allure.output-directory>
+        <!-- Директория, в которой будут хранится результаты для обработки в allure -->
+        <allure.input-directory>${project.build.directory}/allure-results</allure.input-directory>
+        <!-- Директория, куда будет устанавливаться allure и его плагины-->
+        <allure.install-directory>${project.build.directory}/.allure</allure.install-directory>
     </properties>
 
     <dependencies>
@@ -54,5 +67,110 @@
             <version>3.12.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>io.qameta.allure</groupId>
+            <artifactId>allure-testng</artifactId>
+            <version>${allure-testng.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- https://mvnrepository.com/artifact/com.github.webdriverextensions/webdriverextensions -->
+        <!-- Webdriver Extension - упрощает работу с Selenium (создание компонент, кроссбраузерность, ...) -->
+        <dependency>
+            <groupId>com.github.webdriverextensions</groupId>
+            <artifactId>webdriverextensions</artifactId>
+            <version>3.11.2</version>
+        </dependency>
+
     </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>${maven-surefire-plugin.version}</version>
+                <configuration>
+                    <suiteXmlFiles>
+                        <suiteXmlFile>src/test/resources/org/example/testng.xml</suiteXmlFile>
+                    </suiteXmlFiles>
+                    <argLine>
+                        -javaagent:"${settings.localRepository}/org/aspectj/aspectjweaver/${aspectj.version}/aspectjweaver-${aspectj.version}.jar"
+                    </argLine>
+                    <systemPropertyVariables>
+                        <allure.results.directory>${allure.input-directory}</allure.results.directory>
+                    </systemPropertyVariables>
+                </configuration>
+                <dependencies>
+                    <dependency>
+                        <groupId>org.aspectj</groupId>
+                        <artifactId>aspectjweaver</artifactId>
+                        <version>${aspectj.version}</version>
+                    </dependency>
+                </dependencies>
+            </plugin>
+
+            <plugin>
+                <!-- Позволяет использовать кириллицу и переносить файлы из resources -->
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-resources-plugin</artifactId>
+                <version>3.1.0</version>
+                <configuration>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>copy-resources</id>
+                        <phase>validate</phase>
+                        <goals>
+                            <goal>copy-resources</goal>
+                        </goals>
+                        <configuration>
+                            <outputDirectory>${allure.input-directory}</outputDirectory>
+                            <resources>
+                                <resource>
+                                    <directory>src/test/resources/org/example</directory>
+                                    <includes>
+                                        <include>environment.properties</include>
+                                    </includes>
+                                </resource>
+                            </resources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Плагин, позволяющий запускать allure через Maven (mvn allure:serve, :report)-->
+            <plugin>
+                <groupId>io.qameta.allure</groupId>
+                <artifactId>allure-maven</artifactId>
+                <version>${allure-maven.version}</version>
+                <configuration>
+                    <reportDirectory>${allure.output-directory}</reportDirectory>
+                    <resultsDirectory>${allure.input-directory}</resultsDirectory>
+                    <reportVersion>${allure-maven.version}</reportVersion>
+                    <installDirectory>${allure.install-directory}</installDirectory>
+                </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-clean-plugin</artifactId>
+                <configuration>
+                    <excludeDefaultDirectories>true</excludeDefaultDirectories>
+                    <filesets>
+                        <fileset>
+                            <directory>target</directory>
+                            <includes>
+                                <include>**</include>
+                            </includes>
+                            <excludes>
+                                <exclude>**/.allure/**</exclude>
+                            </excludes>
+                        </fileset>
+                    </filesets>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 </project>

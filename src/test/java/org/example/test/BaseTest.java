@@ -1,7 +1,6 @@
-package org.example;
+package org.example.test;
 
 import io.github.bonigarcia.wdm.WebDriverManager;
-import org.apache.commons.lang3.StringUtils;
 import org.example.config.ConfProperties;
 import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.chrome.ChromeDriver;
@@ -32,12 +31,17 @@ public class BaseTest {
         driver.set(new ChromeDriver());
         driver.get().manage().window().maximize();
         driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(
-                ConfProperties.getProperty("wait.seconds")
+                Long.parseLong(
+                        ConfProperties.getProperty("wait.seconds")
+                )
         ));
         driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(
-                ConfProperties.getProperty("wait.seconds")
+                Long.parseLong(
+                        ConfProperties.getProperty("wait.seconds")
+                )
         ));
     }
+
 
     @AfterMethod
     public void tearDown() {
@@ -53,6 +57,14 @@ public class BaseTest {
 
     public void setUrl(String url) {
         this.url = url;
+    }
+
+    public void open() {
+        driver.get().get(url);
+    }
+
+    public void open(String url) {
+        driver.get().get(url);
     }
 
     public String getUrl() {

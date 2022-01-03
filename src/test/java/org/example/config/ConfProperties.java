@@ -1,7 +1,5 @@
 package org.example.config;
 
-import org.apache.commons.lang3.math.NumberUtils;
-
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
@@ -30,11 +28,8 @@ public class ConfProperties {
     /**
      * метод для возврата строки со значением из файла с настройками
      */
-    public static <T> T getProperty(String key) {
+    public static String getProperty(String key) {
         String property  = PROPERTIES.getProperty(key);
-        if (NumberUtils.isCreatable(property)) {
-            return (T) NumberUtils.createDouble(property);
-        }
-        return (T) property;
+        return property;
     }
 }
