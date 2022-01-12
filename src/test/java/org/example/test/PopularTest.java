@@ -6,6 +6,7 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.example.config.ConfProperties;
 import org.example.page.HomePage;
+import org.example.page.block.PopularBlock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -24,20 +25,26 @@ public class PopularTest extends BaseTest{
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void generalTest() {
-        new HomePage(getDriver())
+        PopularBlock popularBlock = new HomePage(getDriver(), isMobile())
                 .getPopularBlock()
                 .assertDisplay()
-                .assertTitle("Популярное")
-                .assertNewsDisplay()
-                .assertNewsOrdinal()
-                .assertNewComment();
+                .assertTitle("Популярное");
+        if (isMobile()) {
+            popularBlock.assertSelectedTitle("Главное сегодня");
+        }
+        popularBlock
+                .assertNewsDisplay();
+        if (!isMobile()) {
+            popularBlock.assertNewsOrdinal();
+        }
+//        popularBlock.assertNewComment();
     }
 
     @Test(description = "Основные проверки")
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void firstNewsTest() {
-        new HomePage(getDriver())
+        new HomePage(getDriver(), isMobile())
                 .getPopularBlock()
                 .assertFirstNewsImg()
                 .assertFirstNewsBoldTitle()

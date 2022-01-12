@@ -5,6 +5,7 @@ import io.qameta.allure.Flaky;
 import io.qameta.allure.Step;
 import org.example.page.ArticlePage;
 import org.example.util.WebUtils;
+import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
@@ -15,19 +16,27 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
 import static com.github.webdriverextensions.Bot.driver;
+import static com.github.webdriverextensions.Bot.scrollTo;
 
 public class PopularBlock extends WebComponent {
 
-    @FindBy(css = "[class *= 'title']:first-of-type")
+    @FindBy(css = "[class *= 'title']:first-of-type," +
+            "[data-tid='db03ddb6']:nth-of-type(2)")
     private WebElement title;
 
-    @FindBy(css = "[class *= 'listItem']")
+    @FindBy(css = "[data-tid='db03ddb6']:first-of-type")
+    private WebElement selectedTitle;
+
+    @FindBy(css = "[class *= 'listItem'], [data-tid='31b6667b']")
     private List<NewsItem> news;
+
+    private boolean isMobile = false;
 
     @Step("Проверить отображение блока")
     public PopularBlock assertDisplay() {
         Assert.assertTrue(
                 getWrappedWebElement().isDisplayed(),
+
                 "Блок 'Популярное' не отображается"
         );
         return this;
@@ -40,17 +49,28 @@ public class PopularBlock extends WebComponent {
         return this;
     }
 
+    public PopularBlock assertFullTitle(String titleText, String selectedText) {
+        assertTitle(titleText);
+        assertSelectedTitle(selectedText);
+        return this;
+    }
+
+    public PopularBlock assertSelectedTitle(String selectedText) {
+        Assert.assertEquals(selectedTitle.getText(), selectedText);
+        return this;
+    }
+
     @Step("Проверить отображение всех новостей в блоке")
     public PopularBlock assertNewsDisplay() {
-        try {
-            Thread.sleep(1);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
         boolean isAllNewsDisplayed = iterateNews().allMatch(
-                newsItem -> newsItem.isDisplayed()
+                WebComponent::isDisplayed
         );
-        isAllNewsDisplayed = isAllNewsDisplayed && news.size() >= 10;
+        boolean isCorrectSize = news.size() >= 10;
+        if (isMobile()) {
+            isCorrectSize = news.size() >= 5;
+        }
+
+        isAllNewsDisplayed = isAllNewsDisplayed && isCorrectSize;
 
         Assert.assertTrue(isAllNewsDisplayed,
                 "Отсутствует какие-то новости в блоке");
@@ -60,6 +80,9 @@ public class PopularBlock extends WebComponent {
 
     @Step("Проверить порядковые номера всех новостей")
     public PopularBlock assertNewsOrdinal() {
+        if (isMobile()) {
+            return this;
+        }
         AtomicInteger expectedOrdinal = new AtomicInteger(1);
         iterateNews().forEach(
                 newsItem -> newsItem.assertOrdinal(expectedOrdinal.getAndIncrement())
@@ -102,6 +125,9 @@ public class PopularBlock extends WebComponent {
 
     @Step("Проверить у первой новости hover - цвет меняется на rgba(255, 102, 0, 1)")
     public PopularBlock assertFirstNewsHoverTitle() {
+        if (isMobile()) {
+            return this;
+        }
         getFirstNews().assertHoverTitle();
         return this;
     }
@@ -120,8 +146,18 @@ public class PopularBlock extends WebComponent {
         return news.stream();
     }
 
+    public void setMobile() {
+        isMobile = true;
+        iterateNews().forEach(NewsItem::setMobile);
+    }
+
     private NewsItem getFirstNews() {
         return iterateNews().findFirst().get();
+    }
+
+
+    public boolean isMobile() {
+        return isMobile;
     }
 
     public static class NewsItem extends WebComponent {
@@ -131,7 +167,7 @@ public class PopularBlock extends WebComponent {
         @FindBy(css = "[data-tid='d95eeedb']")
         private WebElement commentRow;
 
-        @FindBy(css = "img[class *= 'image']")
+        @FindBy(css = "img[class *= 'image'], img[class *= 'featuredImage']")
         private WebElement image;
 
         @FindBy(css = "a[href]:first-of-type")
@@ -139,6 +175,16 @@ public class PopularBlock extends WebComponent {
 
         @FindBy(css = "[class *= 'titleLink']")
         private WebElement title;
+
+        private boolean isMobile = false;
+
+        public boolean isMobile() {
+            return isMobile;
+        }
+
+        public void setMobile() {
+            isMobile = true;
+        }
 
         public String getOrdinal() {
             return ordinal.getText();
@@ -176,10 +222,14 @@ public class PopularBlock extends WebComponent {
         @Flaky
         @Step("Проверить наличие иконки комментариев на ссылке новости")
         public NewsItem assertIconDisplay() {
-            boolean iconDisplayed = WebUtils.init(driver())
-                    .isIconDisplayed(commentRow);
-            Assert.assertTrue(iconDisplayed,
-                    "В новости не отображается иконка");
+            try {
+                boolean iconDisplayed = WebUtils.init(driver())
+                        .isIconDisplayed(commentRow);
+                Assert.assertTrue(iconDisplayed,
+                        "В новости не отображается иконка");
+            } catch (NoSuchElementException e) {
+                Assert.fail("В новости не отображается иконка");
+            }
             return this;
         }
 
@@ -212,6 +262,7 @@ public class PopularBlock extends WebComponent {
         }
 
         public void assertImg() {
+            scrollTo(getWrappedWebElement());
             Assert.assertTrue(image.isDisplayed(), "" +
                     "Картинка новости не отображается");
         }

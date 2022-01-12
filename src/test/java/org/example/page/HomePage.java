@@ -14,9 +14,26 @@ public class HomePage {
     @FindBy(css = "[data-tid='5f37709c']")
     private TodayInCinemaBlock todayInCinemaBlock;
 
-    @FindBy(css = "[class *= 'popularPosts']")
+    @FindBy(css = "[class *= 'popularPosts'], " +
+            "[data-tid='d326019b']")
     private PopularBlock popularBlock;
 
+    private boolean isMobile;
+
+
+    public HomePage(WebDriver driver, boolean isMobile) {
+        WebDriverExtensionsContext.setDriver(driver);
+        PageFactory.initElements(new WebDriverExtensionFieldDecorator(driver), this);
+        if (isMobile) {
+            setMobile();
+        }
+        this.driver = driver;
+    }
+
+    private void setMobile() {
+        todayInCinemaBlock.setMobile();
+        popularBlock.setMobile();
+    }
 
     public HomePage(WebDriver driver) {
         WebDriverExtensionsContext.setDriver(driver);
@@ -30,5 +47,9 @@ public class HomePage {
 
     public PopularBlock getPopularBlock() {
         return popularBlock;
+    }
+
+    public boolean isMobile() {
+        return isMobile;
     }
 }

@@ -1,7 +1,9 @@
 package org.example.page.block;
 
+import com.github.webdriverextensions.Bot;
 import com.github.webdriverextensions.WebComponent;
 import io.qameta.allure.Step;
+import org.example.util.BotUtils;
 import org.example.util.WebUtils;
 import org.example.validation.Validation;
 import org.openqa.selenium.NoSuchElementException;
@@ -18,13 +20,18 @@ import static com.github.webdriverextensions.Bot.waitUntil;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 
 public class TodayInCinemaBlock extends WebComponent {
-    @FindBy(css = "[data-tid='a1a7b53d']")
+
+    @FindBy(css = "[data-tid='a1a7b53d'], " +
+            "[data-tid='6c3fb430']")
     private WebElement title;
+
 
     @FindBy(css = "[class *= 'moreItem']")
     private WebElement titleNumber;
 
-    @FindBy(css = "[data-tid='a1a7b53d']:nth-of-type(2)")
+
+    @FindBy(css = "[data-tid='a1a7b53d']:nth-of-type(2)," +
+            "[class *= 'root'] [class *= 'link']")
     private WebElement allTicketsLink;
 
     @FindBy(css = "[class *= 'carouselItem']:nth-of-type(n):not([aria-hidden = 'true'])")
@@ -48,8 +55,12 @@ public class TodayInCinemaBlock extends WebComponent {
     @FindBy(css = "[data-tid='244e647c'][class *= 'RightButton']")
     private WebElement nextItemsBtn;
 
+    private boolean isMobile = false;
+
     @Step("Проверить отображение блока 'Билеты в кино'")
     public TodayInCinemaBlock assertDisplay() {
+        System.out.println("WHERE FIX");
+        System.out.println(isMobile());
         Assert.assertTrue(
                 getWrappedWebElement().isDisplayed(),
                 "Контейнер блока не отображается"
@@ -67,6 +78,9 @@ public class TodayInCinemaBlock extends WebComponent {
 
     @Step("Проверить у названия блока корректность ссылки '{titleLink}'")
     public TodayInCinemaBlock assertTitleLink(String titleLink) {
+        if (isMobile()) {
+            return this;
+        }
         String actualTitleLink = title.getAttribute("href");
         Assert.assertTrue(actualTitleLink.matches(".*?" + titleLink + "/?"),
                 "Ссылка заголовка имеет неправильный путь '" + actualTitleLink + "' (должно быть '" + titleLink + "')");
@@ -97,22 +111,40 @@ public class TodayInCinemaBlock extends WebComponent {
     @Step("Проверить отображение элементов карусели")
     public TodayInCinemaBlock assertCarouselItemsDisplay() {
         iterateCarousel()
-                .forEach(poster -> poster.assertDisplay());
+                .forEach(poster -> {
+                    BotUtils.scrollTo(poster);
+                    poster.assertDisplay();
+                });
+        resetCarousel();
+        return this;
+    }
+
+    @Step("Прокрутить карусель в начало")
+    public TodayInCinemaBlock resetCarousel() {
+        Bot.scrollTo(iterateCarousel().findFirst().get());
         return this;
     }
 
     @Step("Проверить наличие заголовков у элементов карусели")
     public TodayInCinemaBlock assertCarouselItemTitle() {
         iterateCarousel()
-                .forEach(poster -> poster.assertTitle()
+                .forEach(poster -> {
+                    BotUtils.scrollTo(poster);
+                            poster.assertTitle();
+                        }
                 );
+        resetCarousel();
         return this;
     }
 
     @Step("Проверить год и жанр первых элементов карусели")
     public TodayInCinemaBlock assertItemYearType() {
         iterateCarousel()
-                .forEach(poster -> poster.assertYearAndType());
+                .forEach(poster -> {
+                    BotUtils.scrollTo(poster);
+                    poster.assertYearAndType();
+                });
+        resetCarousel();
         return this;
     }
 
@@ -120,13 +152,11 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertItemImg() {
         iterateCarousel()
                 .forEach(poster -> {
-                    try {
+                    BotUtils.scrollTo(poster);
                         poster.assertImg();
-                    } catch (AssertionError e) {
-                        nextCarouselItems();
-                    }
                 });
 
+        resetCarousel();
         return this;
 
     }
@@ -134,14 +164,24 @@ public class TodayInCinemaBlock extends WebComponent {
     @Step("Проверить корректность рейтинга у элементов карусели")
     public TodayInCinemaBlock assertItemRating() {
         iterateCarousel()
-                .forEach(poster -> poster.assertRating());
+                .forEach(poster -> {
+                    BotUtils.scrollTo(poster);
+                    poster.assertRating();
+                });
+
+        resetCarousel();
         return this;
     }
 
     @Step("Проверить корректность ссылки у элементов карусели")
     public TodayInCinemaBlock assertItemLink() {
         iterateCarousel()
-                .forEach(poster -> poster.assertLink());
+                .forEach(poster -> {
+                    BotUtils.scrollTo(poster);
+                    poster.assertLink();
+                });
+
+        resetCarousel();
         return this;
     }
 
@@ -149,7 +189,19 @@ public class TodayInCinemaBlock extends WebComponent {
     @Step("Листать карусель до конца (вправо)")
     public TodayInCinemaBlock navigateToLastItem() {
         while (nextItemsBtn.isDisplayed()) {
+            System.out.println("NEXT LAST ITEM");
+            try {
+                Thread.sleep(10000);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
             nextCarouselItems();
+            try {
+                Thread.sleep(10000);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            System.out.println("NEXT ITEMS");
         }
         return this;
     }
@@ -165,6 +217,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertLastItemDisplay() {
         try {
             Assert.assertTrue(lastItem.isDisplayed());
+            System.out.println("LAST ITEM: " + lastItem.isDisplayed());
         } catch (NoSuchElementException e) {
             Assert.fail("Последний элемент карусели не отображается");
         }
@@ -195,6 +248,9 @@ public class TodayInCinemaBlock extends WebComponent {
 
     @Step("Проверить совпадение числа в заголовке и последнем элементе карусели")
     public TodayInCinemaBlock assertLastItemValueEquals() {
+        if (isMobile()) {
+            return this;
+        }
         try {
             String titleNum = titleNumber.getText();
             String lastItemValue = this.lastItemValue.getText();
@@ -207,6 +263,10 @@ public class TodayInCinemaBlock extends WebComponent {
 
     @Step("Проверить, что при наведении на последний элемент цвет фона меняется на rgba(255, 102, 0, 1)")
     public TodayInCinemaBlock assertHoverColorLastItem() {
+        if (isMobile()) {
+            return this;
+        }
+
         try {
             Actions actions = new Actions(getWrappedDriver());
             actions.moveToElement(lastItem)
@@ -224,7 +284,16 @@ public class TodayInCinemaBlock extends WebComponent {
     }
 
     private Stream<Poster> iterateCarousel() {
+
         return carouselItems.stream();
+    }
+
+    public void setMobile() {
+        isMobile = true;
+    }
+
+    public boolean isMobile() {
+        return isMobile;
     }
 
     public static class Poster extends WebComponent {

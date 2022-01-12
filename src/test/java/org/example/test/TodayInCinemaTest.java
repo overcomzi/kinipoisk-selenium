@@ -6,6 +6,7 @@ import io.qameta.allure.Severity;
 import io.qameta.allure.SeverityLevel;
 import org.example.config.ConfProperties;
 import org.example.page.HomePage;
+import org.example.page.block.TodayInCinemaBlock;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -25,7 +26,7 @@ public class TodayInCinemaTest extends BaseTest {
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void generalTest() {
-        new HomePage(getDriver())
+        TodayInCinemaBlock todayInCinemaBlock = new HomePage(getDriver(), isMobile())
                 .getTodayInCinemaBlock()
                 .assertDisplay()
                 .assertTitle("Билеты в кино")
@@ -37,9 +38,8 @@ public class TodayInCinemaTest extends BaseTest {
 
     @Test()
     public void carouselElementsTest() {
-        new HomePage(getDriver())
+        new HomePage(getDriver(), isMobile())
                 .getTodayInCinemaBlock()
-                .assertCarouselDisplay()
                 .assertCarouselItemsDisplay()
                 .assertCarouselItemTitle()
                 .assertItemYearType()
@@ -50,7 +50,7 @@ public class TodayInCinemaTest extends BaseTest {
 
     @Test()
     public void carouselLastElementTest() {
-        new HomePage(getDriver())
+        new HomePage(getDriver(), isMobile())
             .getTodayInCinemaBlock()
                 .navigateToLastItem()
                 .assertLastItemDisplay()
