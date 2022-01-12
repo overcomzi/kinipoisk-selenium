@@ -1,41 +1,37 @@
 package org.example.util;
 
-import org.openqa.selenium.JavascriptExecutor;
-import org.openqa.selenium.WebDriver;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.WindowType;
 
+import static org.example.config.WebContext.getDriver;
+import static org.example.config.WebContext.getJSExecutor;
+
 public class WebUtils {
-    private WebDriver driver;
     private String originalWindow;
 
-    private WebUtils(WebDriver driver) {
-        this.driver = driver;
+    private WebUtils(){}
+
+    public static WebUtils init() {
+        return new WebUtils();
     }
 
-    public static WebUtils init(WebDriver driver) {
-        return new WebUtils(driver);
-    }
-    public String getAttribute(WebElement element, String name) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        return js.executeScript("return arguments[0]." + name + ";", element).toString();
-    }
-
-    public boolean isIconDisplayed(WebElement wrapper) {
-        JavascriptExecutor js = (JavascriptExecutor) driver;
-        String script = "return window.getComputedStyle(arguments[0], '::before').getPropertyValue('display');";
-        String iconPropertiesString = (String) js.executeScript(script, wrapper);
+    public  boolean isIconDisplayed(WebElement element) {
+        String iconPropertiesString = getJSExecutor().getBeforePropertiesString(element);
         return !iconPropertiesString.equals("none");
     }
 
+    public  void open(String url) {
+        getDriver().get(url);
+    }
+
     public void openNewTab(String url) {
-        originalWindow = driver.getWindowHandle();
-        driver.switchTo().newWindow(WindowType.TAB);
-        driver.get(url);
+        originalWindow = getDriver().getWindowHandle();
+        getDriver().switchTo().newWindow(WindowType.TAB);
+        getDriver().get(url);
     }
 
     public void closeTab() {
-        driver.close();
-        driver.switchTo().window(originalWindow);
+        getDriver().close();
+        getDriver().switchTo().window(originalWindow);
     }
 }

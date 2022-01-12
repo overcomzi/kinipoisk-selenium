@@ -15,11 +15,11 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static com.github.webdriverextensions.Bot.driver;
 import static com.github.webdriverextensions.Bot.scrollTo;
+import static org.example.config.WebContext.getDriver;
+import static org.example.config.WebContext.isMobile;
 
-public class PopularBlock extends WebComponent {
-
+public class PopularBlock extends WebBlock {
     @FindBy(css = "[class *= 'title']:first-of-type," +
             "[data-tid='db03ddb6']:nth-of-type(2)")
     private WebElement title;
@@ -30,13 +30,14 @@ public class PopularBlock extends WebComponent {
     @FindBy(css = "[class *= 'listItem'], [data-tid='31b6667b']")
     private List<NewsItem> news;
 
-    private boolean isMobile = false;
+    public PopularBlock() {
+        super();
+    }
 
     @Step("Проверить отображение блока")
     public PopularBlock assertDisplay() {
         Assert.assertTrue(
                 getWrappedWebElement().isDisplayed(),
-
                 "Блок 'Популярное' не отображается"
         );
         return this;
@@ -146,18 +147,8 @@ public class PopularBlock extends WebComponent {
         return news.stream();
     }
 
-    public void setMobile() {
-        isMobile = true;
-        iterateNews().forEach(NewsItem::setMobile);
-    }
-
     private NewsItem getFirstNews() {
         return iterateNews().findFirst().get();
-    }
-
-
-    public boolean isMobile() {
-        return isMobile;
     }
 
     public static class NewsItem extends WebComponent {
@@ -223,8 +214,8 @@ public class PopularBlock extends WebComponent {
         @Step("Проверить наличие иконки комментариев на ссылке новости")
         public NewsItem assertIconDisplay() {
             try {
-                boolean iconDisplayed = WebUtils.init(driver())
-                        .isIconDisplayed(commentRow);
+                boolean iconDisplayed =
+                        WebUtils.init().isIconDisplayed(commentRow);
                 Assert.assertTrue(iconDisplayed,
                         "В новости не отображается иконка");
             } catch (NoSuchElementException e) {
@@ -242,9 +233,9 @@ public class PopularBlock extends WebComponent {
         }
 
         private void assertCorrectCommentCount(int actualCommentCount) {
-            WebUtils utils = WebUtils.init(driver());
+            WebUtils utils = WebUtils.init();
             utils.openNewTab(commentRow.getAttribute("href"));
-            int expectedTotalCount = new ArticlePage(driver())
+            int expectedTotalCount = new ArticlePage()
                     .getCommentsBlock()
                     .getTotalCountInt();
             utils.closeTab();
@@ -281,7 +272,7 @@ public class PopularBlock extends WebComponent {
         }
 
         public NewsItem assertHoverTitle() {
-            new Actions(driver()).moveToElement(title).perform();
+            new Actions(getDriver()).moveToElement(title).perform();
             String hoveredColor = title.getCssValue("color");
             Assert.assertEquals(hoveredColor, "rgba(255, 102, 0, 1)");
             return this;

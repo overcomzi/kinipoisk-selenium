@@ -6,7 +6,7 @@
     <test name="All tests in web">
         <parameter name="platform" value="web"></parameter>
         <packages>
-            <package name = "org.example.test.*">
+            <package name = "org.example.test">
                 <exclude name="BaseTest"></exclude>
             </package>
         </packages>

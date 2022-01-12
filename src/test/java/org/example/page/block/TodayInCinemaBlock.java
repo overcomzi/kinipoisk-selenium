@@ -3,9 +3,7 @@ package org.example.page.block;
 import com.github.webdriverextensions.Bot;
 import com.github.webdriverextensions.WebComponent;
 import io.qameta.allure.Step;
-import org.example.util.BotUtils;
-import org.example.util.WebUtils;
-import org.example.validation.Validation;
+import org.example.util.validation.Validation;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
@@ -15,16 +13,15 @@ import org.testng.Assert;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.webdriverextensions.Bot.driver;
 import static com.github.webdriverextensions.Bot.waitUntil;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
+import static org.example.config.WebContext.getJSExecutor;
+import static org.example.config.WebContext.isMobile;
 
-public class TodayInCinemaBlock extends WebComponent {
-
+public class TodayInCinemaBlock extends WebBlock {
     @FindBy(css = "[data-tid='a1a7b53d'], " +
             "[data-tid='6c3fb430']")
     private WebElement title;
-
 
     @FindBy(css = "[class *= 'moreItem']")
     private WebElement titleNumber;
@@ -55,7 +52,9 @@ public class TodayInCinemaBlock extends WebComponent {
     @FindBy(css = "[data-tid='244e647c'][class *= 'RightButton']")
     private WebElement nextItemsBtn;
 
-    private boolean isMobile = false;
+    public TodayInCinemaBlock() {
+        super();
+    }
 
     @Step("Проверить отображение блока 'Билеты в кино'")
     public TodayInCinemaBlock assertDisplay() {
@@ -70,7 +69,7 @@ public class TodayInCinemaBlock extends WebComponent {
 
     @Step("Проверить, что блок имеет название '{titleText}'")
     public TodayInCinemaBlock assertTitle(String titleText) {
-        String actualTitle = WebUtils.init(driver()).
+        String actualTitle = getJSExecutor().
                 getAttribute(title, "firstChild.data");
         Assert.assertEquals(actualTitle, titleText);
         return this;
@@ -112,7 +111,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertCarouselItemsDisplay() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                     poster.assertDisplay();
                 });
         resetCarousel();
@@ -129,7 +128,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertCarouselItemTitle() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                             poster.assertTitle();
                         }
                 );
@@ -141,7 +140,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertItemYearType() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                     poster.assertYearAndType();
                 });
         resetCarousel();
@@ -152,7 +151,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertItemImg() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                         poster.assertImg();
                 });
 
@@ -165,7 +164,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertItemRating() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                     poster.assertRating();
                 });
 
@@ -177,7 +176,7 @@ public class TodayInCinemaBlock extends WebComponent {
     public TodayInCinemaBlock assertItemLink() {
         iterateCarousel()
                 .forEach(poster -> {
-                    BotUtils.scrollTo(poster);
+                    getJSExecutor().scrollTo(poster);
                     poster.assertLink();
                 });
 
@@ -286,14 +285,6 @@ public class TodayInCinemaBlock extends WebComponent {
     private Stream<Poster> iterateCarousel() {
 
         return carouselItems.stream();
-    }
-
-    public void setMobile() {
-        isMobile = true;
-    }
-
-    public boolean isMobile() {
-        return isMobile;
     }
 
     public static class Poster extends WebComponent {

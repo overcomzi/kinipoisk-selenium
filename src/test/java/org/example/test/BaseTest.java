@@ -3,6 +3,8 @@ package org.example.test;
 import io.github.bonigarcia.wdm.WebDriverManager;
 import io.qameta.allure.Allure;
 import org.example.config.ConfProperties;
+import org.example.config.WebConfig;
+import org.example.config.WebContext;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.WebDriver;
@@ -21,11 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.apache.commons.lang3.StringUtils.isEmpty;
+import static org.example.config.WebContext.getDriver;
 
-public class BaseTest {
-    private final static ThreadLocal<WebDriver> driver = new ThreadLocal<>();
+public abstract class BaseTest {
     private String url;
-    private boolean isMobile = false;
 
     @BeforeSuite
     public void setUpSuit() {
@@ -41,25 +42,23 @@ public class BaseTest {
     @Parameters("platform")
     public void setUp(String platform) {
         setPlatform(platform);
-        driver.get().manage().window().maximize();
-        driver.get().manage().timeouts().implicitlyWait(Duration.ofSeconds(
-                Long.parseLong(
-                        ConfProperties.getProperty("wait.seconds")
-                )
+        WebDriver driver = getDriver();
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(
+                WebConfig.getWaitTimeout().getSeconds()
         ));
-        driver.get().manage().timeouts().scriptTimeout(Duration.ofSeconds(
-                Long.parseLong(
-                        ConfProperties.getProperty("wait.seconds")
-                )
+        driver.manage().timeouts().scriptTimeout(Duration.ofSeconds(
+                WebConfig.getWaitTimeout().getSeconds()
         ));
     }
 
     private void setPlatform(String platform) {
         WebDriver webDriver;
-        System.out.println("WORDS:");
+        boolean isMobile = false;
+        System.out.println("PLATFORM " + platform );
+
         switch (platform.toLowerCase()) {
             case "web":
-
                 System.out.println("WEB");
                 webDriver = new ChromeDriver();
                 break;
@@ -72,13 +71,12 @@ public class BaseTest {
                 chromeOptions.setExperimentalOption("mobileEmulation", mobileEmulation);
                 webDriver = new ChromeDriver(chromeOptions);
                 break;
-
             default:
                 webDriver = new ChromeDriver();
                 break;
         }
 
-        driver.set(webDriver);
+        WebContext.set(webDriver, isMobile);
     }
 
 
@@ -95,41 +93,14 @@ public class BaseTest {
     }
 
     private InputStream makeScreenshot(String title) {
-        byte[] screenshotBytes = ((TakesScreenshot) driver.get()).getScreenshotAs(OutputType.BYTES);
+
+        byte[] screenshotBytes = ((TakesScreenshot)  getDriver()).getScreenshotAs(OutputType.BYTES);
         InputStream is = new ByteArrayInputStream(screenshotBytes);
         return is;
     }
 
     @AfterMethod
     public void tearDown() {
-        if (driver.get() != null) {
-            driver.get().quit();
-            driver.set(null);
-        }
-    }
-
-
-    public WebDriver getDriver() {
-        return driver.get();
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
-
-    public void open() {
-        driver.get().get(url);
-    }
-
-    public void open(String url) {
-        driver.get().get(url);
-    }
-
-    public String getUrl() {
-        return url;
-    }
-
-    public boolean isMobile() {
-        return isMobile;
+       WebContext.removeDriver();
     }
 }
