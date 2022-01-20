@@ -20,14 +20,14 @@ import static org.example.config.WebContext.getDriver;
 import static org.example.config.WebContext.isMobile;
 
 public class PopularBlock extends WebBlock {
-    @FindBy(css = "[class *= 'title']:first-of-type," +
-            "[data-tid='db03ddb6']:nth-of-type(2)")
+    @FindBy(css = "[class *= 'title']," +
+            "button:nth-of-type(2)")
     private WebElement title;
 
-    @FindBy(css = "[data-tid='db03ddb6']:first-of-type")
+    @FindBy(css = "button:nth-of-type(1)")
     private WebElement selectedTitle;
 
-    @FindBy(css = "[class *= 'listItem'], [data-tid='31b6667b']")
+    @FindBy(css = "article")
     private List<NewsItem> news;
 
     public PopularBlock() {
@@ -86,7 +86,10 @@ public class PopularBlock extends WebBlock {
         }
         AtomicInteger expectedOrdinal = new AtomicInteger(1);
         iterateNews().forEach(
-                newsItem -> newsItem.assertOrdinal(expectedOrdinal.getAndIncrement())
+                newsItem -> {
+                    newsItem.assertOrdinal(expectedOrdinal.get());
+                    expectedOrdinal.incrementAndGet();
+                }
         );
 
         return this;
@@ -151,11 +154,11 @@ public class PopularBlock extends WebBlock {
         return iterateNews().findFirst().get();
     }
 
-    public static class NewsItem extends WebComponent {
+    public static class NewsItem extends WebBlock {
         @FindBy(css = "[class *= 'index']")
         private WebElement ordinal;
 
-        @FindBy(css = "[data-tid='d95eeedb']")
+        @FindBy(css = "[href *= 'comments']")
         private WebElement commentRow;
 
         @FindBy(css = "img[class *= 'image'], img[class *= 'featuredImage']")
@@ -167,14 +170,8 @@ public class PopularBlock extends WebBlock {
         @FindBy(css = "[class *= 'titleLink']")
         private WebElement title;
 
-        private boolean isMobile = false;
-
-        public boolean isMobile() {
-            return isMobile;
-        }
-
-        public void setMobile() {
-            isMobile = true;
+        public NewsItem() {
+            super();
         }
 
         public String getOrdinal() {

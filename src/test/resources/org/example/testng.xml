@@ -23,7 +23,7 @@
     <test name="All tests in Mobile">
         <parameter name="platform" value="Mobile"></parameter>
         <packages>
-            <package name = "org.example.test.*">
+            <package name = "org.example.test">
                 <exclude name="BaseTest"></exclude>
             </package>
         </packages>

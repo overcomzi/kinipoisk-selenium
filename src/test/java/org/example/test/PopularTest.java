@@ -34,11 +34,9 @@ public class PopularTest extends BaseTest {
             popularBlock.assertSelectedTitle("Главное сегодня");
         }
         popularBlock
-                .assertNewsDisplay();
-        if (!isMobile()) {
-            popularBlock.assertNewsOrdinal();
-        }
-//        popularBlock.assertNewComment();
+                .assertNewsDisplay()
+                .assertNewsOrdinal()
+                .assertNewComment();
     }
 
     @Test(description = "Основные проверки")
@@ -52,6 +50,4 @@ public class PopularTest extends BaseTest {
                 .assertFirstNewsLinks()
                 .assertFirstNewsHoverTitle();
     }
-
-
 }

@@ -82,6 +82,8 @@
             <version>3.11.2</version>
         </dependency>
 
+
+
     </dependencies>
 
     <build>
@@ -171,6 +173,20 @@
                     </filesets>
                 </configuration>
             </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-pmd-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <includeTests>true</includeTests>
+                    <rulesets>
+                        <ruleset>src/test/resources/org/example/pmd.xml</ruleset>
+                    </rulesets>
+                    <printFailingErrors>true</printFailingErrors>
+                </configuration>
+            </plugin>
+
         </plugins>
     </build>
 </project>
