@@ -4,14 +4,11 @@ import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Screenshots;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import com.codeborne.selenide.testng.ScreenShooter;
-import io.github.bonigarcia.wdm.WebDriverManager;
 import io.qameta.allure.Allure;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.apache.commons.io.FileUtils;
-import org.example.config.ConfProperties;
 import org.example.config.browsers.ChromeWebDriver;
 import org.example.config.browsers.MobileWebDriver;
-import org.openqa.selenium.remote.DesiredCapabilities;
 import org.testng.ITestResult;
 import org.testng.TestListenerAdapter;
 import org.testng.annotations.*;
@@ -19,8 +16,6 @@ import org.testng.annotations.*;
 import java.io.File;
 import java.io.IOException;
 
-import static com.codeborne.selenide.WebDriverRunner.*;
-import static org.apache.commons.lang3.StringUtils.isEmpty;
 import static org.example.config.WebConfig.getWaitTimeout;
 import static org.example.config.WebContext.setMobile;
 
@@ -30,28 +25,14 @@ public abstract class BaseTest extends TestListenerAdapter {
 
     @BeforeSuite
     public void setUpSuit() {
-        String chromedriverPath = ConfProperties.getProperty("chromedriver");
-        if (isEmpty(chromedriverPath)) {
-            WebDriverManager.chromedriver().setup();
-        } else {
-            System.setProperty("webdriver.chrome.driver", chromedriverPath);
-        }
         SelenideLogger.addListener("AllureSelenide", new AllureSelenide().screenshots(true).savePageSource(true));
+        Configuration.timeout = getWaitTimeout().getSeconds() * 1000;
     }
-
-    ;
 
     @BeforeMethod()
     @Parameters("platform")
     public void setUp(String platform) {
-        Configuration.timeout = getWaitTimeout().getSeconds() * 1000;
-
         setPlatform(platform);
-    }
-
-    @AfterMethod
-    public void tearDown() {
-        closeWebDriver();
     }
 
     @Override
@@ -76,18 +57,16 @@ public abstract class BaseTest extends TestListenerAdapter {
     }
 
     private void setPlatform(String platform) {
+        Configuration.driverManagerEnabled = false;
         switch (platform.toLowerCase()) {
             case "mobile":
                 setMobile(true);
-                setWebDriver(new MobileWebDriver().createDriver(new DesiredCapabilities()));
+                Configuration.browser = MobileWebDriver.class.getName();
                 break;
             default:
                 setMobile(false);
-                setWebDriver(new ChromeWebDriver().createDriver(new DesiredCapabilities()));
+                Configuration.browser = ChromeWebDriver.class.getName();
                 break;
         }
-
     }
-
-
 }
