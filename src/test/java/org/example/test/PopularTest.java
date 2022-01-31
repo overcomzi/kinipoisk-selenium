@@ -7,26 +7,29 @@ import io.qameta.allure.SeverityLevel;
 import org.example.config.ConfProperties;
 import org.example.page.HomePage;
 import org.example.page.block.PopularBlock;
-import org.example.util.WebUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.page;
 import static org.example.config.WebContext.isMobile;
+import static org.example.config.WebContext.set;
 
 @Epic("Блок Популярное")
 public class PopularTest extends BaseTest {
     @BeforeMethod
     public void openPage() {
-        WebUtils.init().open(
+        open(
                 ConfProperties.getProperty("urls.home-page")
         );
+        set();
     }
 
     @Test(description = "Основные проверки")
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void generalTest() {
-        PopularBlock popularBlock = new HomePage()
+        PopularBlock popularBlock = page(HomePage.class)
                 .getPopularBlock()
                 .assertDisplay()
                 .assertTitle("Популярное");
@@ -43,7 +46,7 @@ public class PopularTest extends BaseTest {
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void firstNewsTest() {
-        new HomePage()
+        page(HomePage.class)
                 .getPopularBlock()
                 .assertFirstNewsImg()
                 .assertFirstNewsBoldTitle()

@@ -1,9 +1,9 @@
 package org.example.util;
 
-import org.openqa.selenium.WebElement;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.WindowType;
 
-import static org.example.config.WebContext.getDriver;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static org.example.config.WebContext.getJSExecutor;
 
 public class WebUtils {
@@ -15,23 +15,19 @@ public class WebUtils {
         return new WebUtils();
     }
 
-    public  boolean isIconDisplayed(WebElement element) {
+    public  boolean isIconDisplayed(SelenideElement element) {
         String iconPropertiesString = getJSExecutor().getBeforePropertiesString(element);
         return !iconPropertiesString.equals("none");
     }
 
-    public  void open(String url) {
-        getDriver().get(url);
-    }
-
     public void openNewTab(String url) {
-        originalWindow = getDriver().getWindowHandle();
-        getDriver().switchTo().newWindow(WindowType.TAB);
-        getDriver().get(url);
+        originalWindow = getWebDriver().getWindowHandle();
+        getWebDriver().switchTo().newWindow(WindowType.TAB);
+        getWebDriver().get(url);
     }
 
     public void closeTab() {
-        getDriver().close();
-        getDriver().switchTo().window(originalWindow);
+        getWebDriver().close();
+        getWebDriver().switchTo().window(originalWindow);
     }
 }

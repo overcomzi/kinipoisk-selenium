@@ -1,11 +1,12 @@
 package org.example.page.block;
 
-import org.openqa.selenium.WebElement;
+import com.codeborne.selenide.ElementsContainer;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.support.FindBy;
 
-public class CommentsBlock extends WebBlock {
+public class CommentsBlock extends ElementsContainer {
     @FindBy(css = ".media-comments-title__total-count")
-    private WebElement totalCount;
+    private SelenideElement totalCount;
 
     public int getTotalCountInt() {
        return Integer.parseInt(totalCount.getText());

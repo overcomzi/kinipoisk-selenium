@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
-<suite name="Home Page" parallel="tests" thread-count="4">
+<suite name="Home Page"  parallel="tests" thread-count="4">
 
 
     <test name="All tests in web">
@@ -10,7 +10,6 @@
                 <exclude name="BaseTest"></exclude>
             </package>
         </packages>
-
 <!--        <classes>-->
 <!--            <class name="org.example.test.TodayInCinemaTest">-->
 <!--                <methods>-->
@@ -21,7 +20,7 @@
     </test>
 
     <test name="All tests in Mobile">
-        <parameter name="platform" value="Mobile"></parameter>
+        <parameter name="platform" value="mobile"></parameter>
         <packages>
             <package name = "org.example.test">
                 <exclude name="BaseTest"></exclude>

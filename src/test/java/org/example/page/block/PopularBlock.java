@@ -1,12 +1,12 @@
 package org.example.page.block;
 
-import com.github.webdriverextensions.WebComponent;
+import com.codeborne.selenide.ElementsContainer;
+import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Flaky;
 import io.qameta.allure.Step;
 import org.example.page.ArticlePage;
 import org.example.util.WebUtils;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
@@ -15,29 +15,26 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Stream;
 
-import static com.github.webdriverextensions.Bot.scrollTo;
-import static org.example.config.WebContext.getDriver;
+import static com.codeborne.selenide.Selenide.page;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static org.example.config.WebContext.isMobile;
 
-public class PopularBlock extends WebBlock {
+public class PopularBlock extends ElementsContainer {
     @FindBy(css = "[class *= 'title']," +
             "button:nth-of-type(2)")
-    private WebElement title;
+    private SelenideElement title;
 
     @FindBy(css = "button:nth-of-type(1)")
-    private WebElement selectedTitle;
+    private SelenideElement selectedTitle;
 
     @FindBy(css = "article")
     private List<NewsItem> news;
 
-    public PopularBlock() {
-        super();
-    }
-
     @Step("Проверить отображение блока")
     public PopularBlock assertDisplay() {
+        getSelf().scrollIntoView("{block: 'center', inline: 'center'}");
         Assert.assertTrue(
-                getWrappedWebElement().isDisplayed(),
+                getSelf().isDisplayed(),
                 "Блок 'Популярное' не отображается"
         );
         return this;
@@ -64,7 +61,7 @@ public class PopularBlock extends WebBlock {
     @Step("Проверить отображение всех новостей в блоке")
     public PopularBlock assertNewsDisplay() {
         boolean isAllNewsDisplayed = iterateNews().allMatch(
-                WebComponent::isDisplayed
+                newsItem -> newsItem.getSelf().isDisplayed()
         );
         boolean isCorrectSize = news.size() >= 10;
         if (isMobile()) {
@@ -154,21 +151,21 @@ public class PopularBlock extends WebBlock {
         return iterateNews().findFirst().get();
     }
 
-    public static class NewsItem extends WebBlock {
+    public static class NewsItem extends ElementsContainer {
         @FindBy(css = "[class *= 'index']")
-        private WebElement ordinal;
+        private SelenideElement ordinal;
 
         @FindBy(css = "[href *= 'comments']")
-        private WebElement commentRow;
+        private SelenideElement commentRow;
 
         @FindBy(css = "img[class *= 'image'], img[class *= 'featuredImage']")
-        private WebElement image;
+        private SelenideElement image;
 
         @FindBy(css = "a[href]:first-of-type")
-        private WebElement imageLink;
+        private SelenideElement imageLink;
 
         @FindBy(css = "[class *= 'titleLink']")
-        private WebElement title;
+        private SelenideElement title;
 
         public NewsItem() {
             super();
@@ -232,7 +229,7 @@ public class PopularBlock extends WebBlock {
         private void assertCorrectCommentCount(int actualCommentCount) {
             WebUtils utils = WebUtils.init();
             utils.openNewTab(commentRow.getAttribute("href"));
-            int expectedTotalCount = new ArticlePage()
+            int expectedTotalCount = page(ArticlePage.class)
                     .getCommentsBlock()
                     .getTotalCountInt();
             utils.closeTab();
@@ -250,7 +247,7 @@ public class PopularBlock extends WebBlock {
         }
 
         public void assertImg() {
-            scrollTo(getWrappedWebElement());
+            getSelf().scrollIntoView("{block: 'center', inline: 'center'}");
             Assert.assertTrue(image.isDisplayed(), "" +
                     "Картинка новости не отображается");
         }
@@ -269,7 +266,7 @@ public class PopularBlock extends WebBlock {
         }
 
         public NewsItem assertHoverTitle() {
-            new Actions(getDriver()).moveToElement(title).perform();
+            new Actions(getWebDriver()).moveToElement(title).perform();
             String hoveredColor = title.getCssValue("color");
             Assert.assertEquals(hoveredColor, "rgba(255, 102, 0, 1)");
             return this;

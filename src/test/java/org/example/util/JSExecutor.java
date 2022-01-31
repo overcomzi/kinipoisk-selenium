@@ -1,12 +1,13 @@
 package org.example.util;
 
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.ScriptKey;
 import org.openqa.selenium.WebDriver;
-import org.openqa.selenium.WebElement;
 
 import java.util.Set;
 
+import static com.codeborne.selenide.Selenide.executeJavaScript;
 import static org.example.config.WebContext.getJSExecutor;
 
 public class JSExecutor {
@@ -16,7 +17,7 @@ public class JSExecutor {
         this.executor = (JavascriptExecutor) driver;
     }
 
-    public void scrollTo(WebElement element) {
+    public void scrollTo(SelenideElement element) {
         executeScript("arguments[0].scrollIntoView({block: 'center', inline: 'center'});", element);
     }
 
@@ -44,13 +45,13 @@ public class JSExecutor {
         return executor.executeScript(key, args);
     }
 
-    public String getBeforePropertiesString(WebElement element) {
+    public String getBeforePropertiesString(SelenideElement element) {
         String script = "return window.getComputedStyle(arguments[0], '::before').getPropertyValue('display');";
         String iconPropertiesString = (String) getJSExecutor().executeScript(script, element);
         return iconPropertiesString;
     }
 
-    public String getAttribute(WebElement element, String name) {
-        return getJSExecutor().executeScript("return arguments[0]." + name + ";", element).toString();
+    public String getAttribute(SelenideElement element, String name) {
+        return executeJavaScript("return arguments[0]." + name + ";", element).toString();
     }
 }

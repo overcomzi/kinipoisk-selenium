@@ -7,22 +7,26 @@ import io.qameta.allure.SeverityLevel;
 import org.example.config.ConfProperties;
 import org.example.page.HomePage;
 import org.example.page.block.TodayInCinemaBlock;
-import org.example.util.WebUtils;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
+
+import static com.codeborne.selenide.Selenide.open;
+import static com.codeborne.selenide.Selenide.page;
+import static org.example.config.WebContext.set;
 
 @Epic("Блок Билеты в кино")
 public class TodayInCinemaTest extends BaseTest {
     @BeforeMethod
     public void openPage() {
-        WebUtils.init().open(ConfProperties.getProperty("urls.home-page"));
+        open(ConfProperties.getProperty("urls.home-page"));
+        set();
     }
 
     @Test(description = "Основные проверки")
     @Description("Регрессионные проверки на ссылки и заголовки")
     @Severity(SeverityLevel.BLOCKER)
     public void generalTest() {
-        TodayInCinemaBlock todayInCinemaBlock = new HomePage()
+        TodayInCinemaBlock todayInCinemaBlock = page(HomePage.class)
                 .getTodayInCinemaBlock()
                 .assertDisplay()
                 .assertTitle("Билеты в кино")
@@ -34,7 +38,7 @@ public class TodayInCinemaTest extends BaseTest {
 
     @Test()
     public void carouselElementsTest() {
-        new HomePage()
+        page(HomePage.class)
                 .getTodayInCinemaBlock()
                 .assertCarouselItemsDisplay()
                 .assertCarouselItemTitle()
@@ -46,7 +50,7 @@ public class TodayInCinemaTest extends BaseTest {
 
     @Test()
     public void carouselLastElementTest() {
-        new HomePage()
+        page(HomePage.class)
             .getTodayInCinemaBlock()
                 .navigateToLastItem()
                 .assertLastItemDisplay()

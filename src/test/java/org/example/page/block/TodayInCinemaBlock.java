@@ -1,65 +1,61 @@
 package org.example.page.block;
 
-import com.github.webdriverextensions.Bot;
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsContainer;
+import com.codeborne.selenide.SelenideElement;
 import io.qameta.allure.Step;
 import org.example.util.validation.Validation;
 import org.openqa.selenium.NoSuchElementException;
-import org.openqa.selenium.WebElement;
 import org.openqa.selenium.interactions.Actions;
 import org.openqa.selenium.support.FindBy;
 import org.testng.Assert;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Stream;
 
-import static com.github.webdriverextensions.Bot.waitUntil;
+import static com.codeborne.selenide.WebDriverRunner.getWebDriver;
 import static org.apache.commons.lang3.StringUtils.isNotBlank;
 import static org.example.config.WebContext.getJSExecutor;
 import static org.example.config.WebContext.isMobile;
 
-public class TodayInCinemaBlock extends WebBlock {
+public class TodayInCinemaBlock extends ElementsContainer {
     @FindBy(css = ".film-page-section-title a, " +
             "[class ^= 'styles_title']")
-    private WebElement title;
+    private SelenideElement title;
 
     @FindBy(css = "[class *= 'moreItem']")
-    private WebElement titleNumber;
+    private SelenideElement titleNumber;
 
     @FindBy(css = "[class *= 'additionalLink']," +
             "[class *= 'root'] [class *= 'link']")
-    private WebElement allTicketsLink;
+    private SelenideElement allTicketsLink;
 
     @FindBy(css = "[class *= 'carouselItem']:nth-of-type(n):not([aria-hidden = 'true'])")
     private List<Poster> carouselItems;
 
     @FindBy(css = "[class *= 'carousel']")
-    private WebElement carouselWrapper;
+    private SelenideElement carouselWrapper;
 
     @FindBy(css = "[class *= 'moreButtonLink']")
-    private WebElement lastItem;
+    private SelenideElement lastItem;
 
     @FindBy(css = "[class *= 'total']")
-    private WebElement lastItemTotal;
+    private SelenideElement lastItemTotal;
 
     @FindBy(css = "[class *= 'total'] [class *= 'value']")
-    private WebElement lastItemValue;
+    private SelenideElement lastItemValue;
 
     @FindBy(css = "[class *= 'total'] [class *= 'title']")
-    private WebElement lastItemTitle;
+    private SelenideElement lastItemTitle;
 
     @FindBy(css = "[class *= 'RightButton']")
-    private WebElement nextItemsBtn;
-
-    public TodayInCinemaBlock() {
-        super();
-    }
+    private SelenideElement nextItemsBtn;
 
     @Step("Проверить отображение блока 'Билеты в кино'")
     public TodayInCinemaBlock assertDisplay() {
-        System.out.println("WHERE FIX");
-        System.out.println(isMobile());
         Assert.assertTrue(
-                getWrappedWebElement().isDisplayed(),
+                getSelf().isDisplayed(),
                 "Контейнер блока не отображается"
         );
         return this;
@@ -67,8 +63,9 @@ public class TodayInCinemaBlock extends WebBlock {
 
     @Step("Проверить, что блок имеет название '{titleText}'")
     public TodayInCinemaBlock assertTitle(String titleText) {
-        String actualTitle = getJSExecutor().
-                getAttribute(title, "firstChild.data");
+        String actualTitle = getJSExecutor().getAttribute(
+                title, "firstChild.data"
+        );
         Assert.assertEquals(actualTitle, titleText);
         return this;
     }
@@ -109,7 +106,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertCarouselItemsDisplay() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    poster.getSelf().scrollIntoView("{block: 'center', inline: 'center'}");
                     poster.assertDisplay();
                 });
         resetCarousel();
@@ -118,7 +115,8 @@ public class TodayInCinemaBlock extends WebBlock {
 
     @Step("Прокрутить карусель в начало")
     public TodayInCinemaBlock resetCarousel() {
-        Bot.scrollTo(iterateCarousel().findFirst().get());
+        Poster poster = iterateCarousel().findFirst().get();
+        poster.getSelf().scrollIntoView("{block: 'center', inline: 'center'}");
         return this;
     }
 
@@ -126,7 +124,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertCarouselItemTitle() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    poster.getSelf().scrollIntoView("{block: 'center', inline: 'center'}");
                             poster.assertTitle();
                         }
                 );
@@ -138,7 +136,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertItemYearType() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    getJSExecutor().scrollTo(poster.getSelf());
                     poster.assertYearAndType();
                 });
         resetCarousel();
@@ -149,7 +147,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertItemImg() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    getJSExecutor().scrollTo(poster.getSelf());
                         poster.assertImg();
                 });
 
@@ -162,7 +160,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertItemRating() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    getJSExecutor().scrollTo(poster.getSelf());
                     poster.assertRating();
                 });
 
@@ -174,7 +172,7 @@ public class TodayInCinemaBlock extends WebBlock {
     public TodayInCinemaBlock assertItemLink() {
         iterateCarousel()
                 .forEach(poster -> {
-                    getJSExecutor().scrollTo(poster.getWrappedWebElement());
+                    getJSExecutor().scrollTo(poster.getSelf());
                     poster.assertLink();
                 });
 
@@ -253,13 +251,17 @@ public class TodayInCinemaBlock extends WebBlock {
         }
 
         try {
-            Actions actions = new Actions(getWrappedDriver());
+            Actions actions = new Actions(getWebDriver());
             actions.moveToElement(lastItem)
                     .perform();
-            waitUntil(
-                    driver -> lastItemTotal.getCssValue("background-color")
-                            .equals("rgba(255, 102, 0, 1)")
+          lastItemTotal.hover().shouldHave(
+                    Condition.cssValue(
+                            "background-color",
+                            "rgba(255, 102, 0, 1)"
+                    ),
+                    Duration.ofSeconds(6)
             );
+
             String bgcolorHovered = lastItemTotal.getCssValue("background-color");
             Assert.assertEquals(bgcolorHovered, "rgba(255, 102, 0, 1)");
         } catch (NoSuchElementException e) {
@@ -272,22 +274,22 @@ public class TodayInCinemaBlock extends WebBlock {
         return carouselItems.stream();
     }
 
-    public static class Poster extends WebBlock {
+    public static class Poster extends ElementsContainer {
         @FindBy(css = "img[class *= 'poster']")
-        private WebElement imgFrame;
+        private SelenideElement imgFrame;
 
         @FindBy(css = "[class *= 'ratingPosterNameplate']")
-        private WebElement rating;
+        private SelenideElement rating;
 
         @FindBy(css = "[class *= 'posterLink'], [class ^= 'styles_link']")
-        private WebElement link;
+        private SelenideElement link;
 
         @FindBy(css = "[class *= 'styles_title'] > span, [class *= 'styles_title'] > span > span")
-        private WebElement title;
+        private SelenideElement title;
 
         @FindBy(css = "[class *= 'subtitle'] span, " +
                 "div[class *= 'caption']")
-        private WebElement yearAndType;
+        private SelenideElement yearAndType;
 
         public Poster() {
             super();
@@ -367,7 +369,7 @@ public class TodayInCinemaBlock extends WebBlock {
         }
 
         public Poster assertDisplay() {
-            Assert.assertTrue(getWrappedWebElement().isDisplayed(), "Не отображается постер: " + getWrappedWebElement());
+            Assert.assertTrue(getSelf().isDisplayed(), "Не отображается постер: " + getSelf());
             return this;
         }
 
