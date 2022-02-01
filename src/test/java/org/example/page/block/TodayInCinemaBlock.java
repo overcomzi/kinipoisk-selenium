@@ -278,7 +278,8 @@ public class TodayInCinemaBlock extends ElementsContainer {
         @FindBy(css = "img[class *= 'poster']")
         private SelenideElement imgFrame;
 
-        @FindBy(css = "[class *= 'ratingPosterNameplate']")
+        @FindBy(css = "[class *= 'ratingPosterNameplate']," +
+                "[class *= 'ratings'] div")
         private SelenideElement rating;
 
         @FindBy(css = "[class *= 'posterLink'], [class ^= 'styles_link']")
