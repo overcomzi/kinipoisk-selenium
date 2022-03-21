@@ -4,6 +4,7 @@ import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.Attachment;
 import org.example.page.block.PopularBlock;
 import org.example.page.block.TodayInCinemaBlock;
+import org.example.page.block.TrailersBlock;
 import org.openqa.selenium.OutputType;
 import org.openqa.selenium.TakesScreenshot;
 import org.openqa.selenium.support.FindBy;
@@ -11,6 +12,9 @@ import org.openqa.selenium.support.FindBy;
 public class HomePage {
     @FindBy(css = "section[class *= 'block']")
     private TodayInCinemaBlock todayInCinemaBlock;
+
+    @FindBy(css = "#new-trailers-block + div")
+    private TrailersBlock trailersBlock;
 
     @FindBy(css = "[class *= 'popularPosts'], " +
             "#media-preview-block + div > div:not([class *= 'block'])")
@@ -26,6 +30,10 @@ public class HomePage {
 
     public PopularBlock getPopularBlock() {
         return popularBlock;
+    }
+
+    public TrailersBlock getTrailersBlock() {
+        return trailersBlock;
     }
 
     @Attachment(type = "image/png")
