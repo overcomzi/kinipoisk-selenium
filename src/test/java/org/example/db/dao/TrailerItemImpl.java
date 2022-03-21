@@ -1,81 +1,76 @@
 package org.example.db.dao;
 
+import org.apache.commons.dbutils.DbUtils;
 import org.example.db.ConnectionFactory;
 import org.example.models.newTrailers.TrailerItem;
 
-import java.sql.*;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.List;
-import java.util.Set;
 
 public class TrailerItemImpl implements TrailerItemDao {
-    Connection connection = ConnectionFactory.getConnection();
+    private Connection currentConnection;
 
     @Override
     public TrailerItem getTrailer(long id) {
+        Connection connection = null;
         TrailerItem trailer = null;
+        PreparedStatement statement = null;
+        ResultSet rs = null;
         try {
-            Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(
-                    "SELECT * FROM TrailerItems WHERE id = " + id
-            );
+            connection = ConnectionFactory.getConnection();
+            statement = connection.prepareStatement("SELECT * FROM TrailerItems WHERE id = ?");
+            statement.setLong(1, id);
+            rs = statement.executeQuery();
+
             if (rs.next()) {
                 trailer = extractTrailerItem(rs);
             }
-            connection.close();
             return trailer;
         } catch (SQLException e) {
-            System.out.println(e);
             e.printStackTrace();
+        } finally {
+            DbUtils.closeQuietly(rs);
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
 
-
         return null;
     }
 
-    @Override
-    public Set<TrailerItem> getAllTrailers() {
-        return null;
-    }
 
     @Override
     public boolean insertTrailer(TrailerItem trailerItem) {
+        Connection connection = null;
+        TrailerItem trailer = null;
+        PreparedStatement statement = null;
         try {
-            PreparedStatement statement = connection.prepareStatement(
-                    "INSERT INTO TrailerItems (film_id, genre, year_row, title) " +
-                            "VALUES (?, ? , ?, ?)"
-            );
-            statement.setLong(1, trailerItem.getFilmId());
-            statement.setString(2, trailerItem.getGenre());
-            statement.setString(3, trailerItem.getYear());
-            statement.setString(4, trailerItem.getTitle());
+            connection = ConnectionFactory.getConnection();
+            statement = getTrailerInsertStatement(connection, trailerItem);
+            int ok = statement.executeUpdate();
 
-            int rs = statement.executeUpdate();
-            if (rs > 0) {
-                System.out.println("Инфа вставлена в БД " + trailerItem);
+            if (ok > 0) {
+                System.out.println("Трейлер вставлен в БД " + trailerItem);
             } else {
-                System.out.println("Инфа НЕ вставлена в БД " + trailerItem);
+                System.out.println("Трейлер НЕ вставлен в БД " + trailerItem);
             }
-            connection.close();
+
             return true;
         } catch (SQLException e) {
             e.printStackTrace();
+        } finally {
+            DbUtils.closeQuietly(statement);
+            DbUtils.closeQuietly(connection);
         }
 
-        return false;
-    }
-
-    @Override
-    public boolean updateTrailer() {
-        return false;
-    }
-
-    @Override
-    public boolean deleteTrailer() {
         return false;
     }
 
     @Override
     public boolean executeTransaction(Runnable runnable) {
+        Connection connection = currentConnection;
         try {
             connection.setAutoCommit(false);
             runnable.run();
@@ -86,25 +81,26 @@ public class TrailerItemImpl implements TrailerItemDao {
             } catch (SQLException ex) {
                 ex.printStackTrace();
             }
-            return false;
         } finally {
             try {
-                connection.close();
+                connection.setAutoCommit(true);
             } catch (SQLException e) {
                 e.printStackTrace();
             }
+            DbUtils.closeQuietly(connection);
         }
         return true;
     }
 
     @Override
     public boolean insertTrailers(List<TrailerItem> trailers) {
+        currentConnection = ConnectionFactory.getConnection();
         executeTransaction(
                 () -> {
                     trailers.forEach(trailer ->
                             {
                                 try {
-                                    extractStatementBy(trailer).executeUpdate();
+                                    getTrailerInsertStatement(currentConnection, trailer).executeUpdate();
                                 } catch (SQLException e) {
                                     e.printStackTrace();
                                 }
@@ -125,7 +121,7 @@ public class TrailerItemImpl implements TrailerItemDao {
         return trailer;
     }
 
-    private PreparedStatement extractStatementBy(TrailerItem trailerItem) {
+    private PreparedStatement getTrailerInsertStatement(Connection connection, TrailerItem trailerItem) {
         PreparedStatement statement = null;
         try {
             statement = connection.prepareStatement(

@@ -2,6 +2,7 @@ package org.example.page.block;
 
 import com.codeborne.selenide.ElementsContainer;
 import com.codeborne.selenide.SelenideElement;
+import io.qameta.allure.Step;
 import org.example.models.newTrailers.TrailerItem;
 import org.openqa.selenium.support.FindBy;
 
@@ -16,6 +17,7 @@ public class TrailersBlock extends ElementsContainer {
     @FindBy(css = ".film-trailer")
     private List<TrailerSliderItem> trailers;
 
+    @Step("Найти трейлеры, у которых год выпуска некорректный")
     public List<TrailerItem> findTrailersWithIncorrectYearRow() {
         getSelf().scrollIntoView(true);
 

@@ -8,35 +8,35 @@
         </classes>
     </test>
 
-    <!--    <test name="All tests in web">-->
-    <!--        <parameter name="platform" value="web"></parameter>-->
-    <!--        <packages>-->
-    <!--            <package name = "org.example.test">-->
-    <!--                <exclude name="BaseTest"></exclude>-->
-    <!--            </package>-->
-    <!--        </packages>-->
-    <!--&lt;!&ndash;        <classes>&ndash;&gt;-->
-    <!--&lt;!&ndash;            <class name="org.example.test.TodayInCinemaTest">&ndash;&gt;-->
-    <!--&lt;!&ndash;                <methods>&ndash;&gt;-->
-    <!--&lt;!&ndash;                    <include name="carouselElementsTest"></include>&ndash;&gt;-->
-    <!--&lt;!&ndash;                </methods>&ndash;&gt;-->
-    <!--&lt;!&ndash;            </class>&ndash;&gt;-->
-    <!--&lt;!&ndash;        </classes>&ndash;&gt;-->
-    <!--    </test>-->
+<!--        <test name="All tests in web">-->
+<!--            <parameter name="platform" value="web"></parameter>-->
+<!--            <packages>-->
+<!--                <package name = "org.example.test">-->
+<!--                    <exclude name="BaseTest"></exclude>-->
+<!--                </package>-->
+<!--            </packages>-->
+<!--    &lt;!&ndash;        <classes>&ndash;&gt;-->
+<!--    &lt;!&ndash;            <class name="org.example.test.TodayInCinemaTest">&ndash;&gt;-->
+<!--    &lt;!&ndash;                <methods>&ndash;&gt;-->
+<!--    &lt;!&ndash;                    <include name="carouselElementsTest"></include>&ndash;&gt;-->
+<!--    &lt;!&ndash;                </methods>&ndash;&gt;-->
+<!--    &lt;!&ndash;            </class>&ndash;&gt;-->
+<!--    &lt;!&ndash;        </classes>&ndash;&gt;-->
+<!--        </test>-->
 
-    <!--    <test name="All tests in Mobile">-->
-    <!--        <parameter name="platform" value="mobile"></parameter>-->
-    <!--        <packages>-->
-    <!--            <package name = "org.example.test">-->
-    <!--                <exclude name="BaseTest"></exclude>-->
-    <!--            </package>-->
-    <!--        </packages>-->
-    <!--&lt;!&ndash;        <classes>&ndash;&gt;-->
-    <!--&lt;!&ndash;            <class name="org.example.test.TodayInCinemaTest">&ndash;&gt;-->
-    <!--&lt;!&ndash;                <methods>&ndash;&gt;-->
-    <!--&lt;!&ndash;                    <include name="carouselElementsTest"></include>&ndash;&gt;-->
-    <!--&lt;!&ndash;                </methods>&ndash;&gt;-->
-    <!--&lt;!&ndash;            </class>&ndash;&gt;-->
-    <!--&lt;!&ndash;        </classes>&ndash;&gt;-->
-    <!--    </test>-->
+<!--&lt;!&ndash;        <test name="All tests in Mobile">&ndash;&gt;-->
+<!--&lt;!&ndash;            <parameter name="platform" value="mobile"></parameter>&ndash;&gt;-->
+<!--&lt;!&ndash;            <packages>&ndash;&gt;-->
+<!--&lt;!&ndash;                <package name = "org.example.test">&ndash;&gt;-->
+<!--&lt;!&ndash;                    <exclude name="BaseTest"></exclude>&ndash;&gt;-->
+<!--&lt;!&ndash;                </package>&ndash;&gt;-->
+<!--&lt;!&ndash;            </packages>&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;        <classes>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;            <class name="org.example.test.TodayInCinemaTest">&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;                <methods>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;                    <include name="carouselElementsTest"></include>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;                </methods>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;            </class>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;    &lt;!&ndash;        </classes>&ndash;&gt;&ndash;&gt;-->
+<!--&lt;!&ndash;        </test>&ndash;&gt;-->
 </suite>
