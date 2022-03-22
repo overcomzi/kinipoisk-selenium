@@ -14,4 +14,12 @@ public class UnitInformService {
                trailerItems
         );
     }
+
+    public void publicTrailerInfo(TrailerItem trailerItem) {
+        trailerItemDao.insertTrailer(trailerItem);
+    }
+
+    public TrailerItem getTrailer(long id) {
+        return trailerItemDao.getTrailer(id);
+    }
 }
